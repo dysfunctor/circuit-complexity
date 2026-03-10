@@ -7,6 +7,7 @@ establishes the circuit size complexity measure for Boolean functions.
 
 ## Main definitions
 
+* `BitString` — a string of bits of a specific length
 * `Basis` — a basis of Boolean operations with arity constraints
 * `Circuit` — an acyclic Boolean circuit (well-formedness by construction)
 * `CompleteBasis` — typeclass for functionally complete bases
@@ -16,6 +17,9 @@ establishes the circuit size complexity measure for Boolean functions.
 
 * `Circuit.size_complexity_pos` — for complete bases, size complexity is positive
 -/
+
+/-- A BitString of length n. -/
+abbrev BitString n := Fin n → Bool
 
 /-- Arity constraint for operations in a basis. -/
 inductive Arity where
@@ -45,7 +49,7 @@ structure Basis where
   /-- The arity constraint for each operation. -/
   arity : Op → Arity
   /-- Evaluate an operation on `n` input bits, given that `n` satisfies the arity. -/
-  eval : (op : Op) → (n : Nat) → (arity op).satisfiedBy n → (Fin n → Bool) → Bool
+  eval : (op : Op) → (n : Nat) → (arity op).satisfiedBy n → BitString n → Bool
 
 /--
 A gate in a circuit over basis `B` with `W` wires available as inputs.
@@ -59,7 +63,7 @@ structure Gate (B : Basis) (W : Nat) where
   inputs : Fin fanIn → Fin W
 
 /-- Evaluate a gate given a wire-value assignment. -/
-def Gate.eval (g : Gate B W) (wireVal : Fin W → Bool) : Bool :=
+def Gate.eval (g : Gate B W) (wireVal : BitString W) : Bool :=
   B.eval g.op g.fanIn g.arityOk (wireVal ∘ g.inputs)
 
 /--
@@ -85,7 +89,7 @@ variable {B : Basis} {N M G : Nat} [NeZero N] [NeZero M]
 
 The first `N` wires carry the primary inputs. Wire `N + i` carries the
 output of internal gate `i`. -/
-def wireValue (c : Circuit B N M G) (input : Fin N → Bool)
+def wireValue (c : Circuit B N M G) (input : BitString N)
     (w : Fin (N + G)) : Bool :=
   if h : w.val < N then
     input ⟨w.val, h⟩
@@ -100,7 +104,7 @@ decreasing_by
   omega
 
 /-- Evaluate a circuit: map an `N`-bit input to an `M`-bit output. -/
-def eval (c : Circuit B N M G) (input : Fin N → Bool) : Fin M → Bool :=
+def eval (c : Circuit B N M G) (input : BitString N) : BitString M :=
   fun j => (c.outputs j).eval (c.wireValue input)
 
 /-- The size of a circuit is its total number of gates (internal + output). -/
@@ -110,7 +114,7 @@ end Circuit
 
 /-- A basis is complete if every Boolean function can be computed by some circuit over it. -/
 class CompleteBasis (B : Basis) : Prop where
-  complete : ∀ {N M} [NeZero N] [NeZero M] (f : (Fin N → Bool) → (Fin M → Bool)),
+  complete : ∀ {N M} [NeZero N] [NeZero M] (f : BitString N → BitString M),
     ∃ G, ∃ c : Circuit B N M G, c.eval = f
 
 namespace Circuit
@@ -119,18 +123,18 @@ variable {B : Basis} {N M : Nat} [NeZero N] [NeZero M]
 /-- The minimum size circuit over basis `B` computing a given function.
     Returns 0 if no circuit over `B` computes `f`. -/
 noncomputable def size_complexity
-    (B : Basis) (f : (Fin N → Bool) → (Fin M → Bool)) : Nat :=
+    (B : Basis) (f : BitString N → BitString M) : Nat :=
   sInf {s | ∃ G, ∃ c : Circuit B N M G, c.size = s ∧ c.eval = f}
 
 private theorem size_complexity_set_nonempty [CompleteBasis B]
-    (f : (Fin N → Bool) → (Fin M → Bool)) :
+    (f : BitString N → BitString M) :
     {s | ∃ G, ∃ c : Circuit B N M G, c.size = s ∧ c.eval = f}.Nonempty :=
   let ⟨G, c, hc⟩ := CompleteBasis.complete (B := B) f
   ⟨c.size, G, c, rfl, hc⟩
 
 /-- For a complete basis, circuit size complexity is always positive. -/
 theorem size_complexity_pos [CompleteBasis B]
-    (f : (Fin N → Bool) → (Fin M → Bool)) :
+    (f : BitString N → BitString M) :
     0 < size_complexity B f := by
   obtain ⟨_, _, hs, _⟩ := Nat.sInf_mem (size_complexity_set_nonempty (B := B) f)
   simp only [size_complexity]

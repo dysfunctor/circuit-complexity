@@ -1,3 +1,4 @@
+import Mathlib.Data.Nat.Lattice
 import Circ.Basic
 
 /-- Operations in an AND/OR/NOT basis. -/
@@ -31,3 +32,7 @@ def Basis.boundedAON (k : Nat) : Basis where
     | .or => .upto k
     | .not => .exactly 1
   eval op n _ inputs := op.eval n inputs
+
+def AONop.for {N} [NeZero N] :
+    ((Fin N → Bool) → Bool) → Circuit AONop N N N
+  | f => sorry
