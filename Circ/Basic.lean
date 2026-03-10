@@ -61,26 +61,25 @@ structure Gate (B : Basis) (W : Nat) where
   fanIn : Nat
   arityOk : (B.arity op).satisfiedBy fanIn
   inputs : Fin fanIn → Fin W
+  /-- Per-input negation flag. Negations are free in circuit complexity. -/
+  negated : Fin fanIn → Bool
 
 /-- Evaluate a gate given a wire-value assignment. -/
 def Gate.eval (g : Gate B W) (wireVal : BitString W) : Bool :=
-  B.eval g.op g.fanIn g.arityOk (wireVal ∘ g.inputs)
+  B.eval g.op g.fanIn g.arityOk (fun i => (g.negated i).xor (wireVal (g.inputs i)))
 
 /--
 A Boolean circuit over basis `B` with `N` inputs, `M` outputs, and `G`
 internal gates.
 
-**Well-formedness by construction:**
-- Internal gate `i` draws its inputs from `Fin (N + i)` — the `N` primary
-  inputs plus the outputs of internal gates `0, …, i − 1`. This makes
-  cycles impossible at the type level.
-- Each gate's fan-in is statically checked against the arity constraint
-  of its operation.
-- Each output gate draws from all `N + G` wires.
+All gates reference wires from `Fin (N + G)`. The `acyclic` field ensures
+that internal gate `i` only reads wires `0, …, N + i − 1`, preventing cycles.
 -/
 structure Circuit (B : Basis) (N M G : Nat) [NeZero N] [NeZero M] where
-  gates : (i : Fin G) → Gate B (N + i.val)
+  gates : Fin G → Gate B (N + G)
   outputs : Fin M → Gate B (N + G)
+  acyclic : ∀ (i : Fin G) (k : Fin (gates i).fanIn),
+    ((gates i).inputs k).val < N + i.val
 
 namespace Circuit
 variable {B : Basis} {N M G : Nat} [NeZero N] [NeZero M]
@@ -97,11 +96,26 @@ def wireValue (c : Circuit B N M G) (input : BitString N)
     have hG : w.val - N < G := by omega
     let gate := c.gates ⟨w.val - N, hG⟩
     B.eval gate.op gate.fanIn gate.arityOk
-      fun i => c.wireValue input ⟨(gate.inputs i).val, by omega⟩
+      fun k => (gate.negated k).xor (c.wireValue input (gate.inputs k))
 termination_by w.val
 decreasing_by
-  have := (gate.inputs i).isLt
+  have hacyc := c.acyclic ⟨w.val - N, hG⟩ k
+  have : (⟨w.val - N, hG⟩ : Fin G).val = w.val - N := rfl
   omega
+
+theorem wireValue_lt (c : Circuit B N M G) (input : BitString N)
+    (w : Fin (N + G)) (h : w.val < N) :
+    c.wireValue input w = input ⟨w.val, h⟩ := by
+  unfold wireValue
+  simp [h]
+
+theorem wireValue_ge (c : Circuit B N M G) (input : BitString N)
+    (w : Fin (N + G)) (h : ¬ (w.val < N)) :
+    c.wireValue input w =
+      (c.gates ⟨w.val - N, by omega⟩).eval (c.wireValue input) := by
+  unfold wireValue
+  simp only [h, dite_false]
+  rfl
 
 /-- Evaluate a circuit: map an `N`-bit input to an `M`-bit output. -/
 def eval (c : Circuit B N M G) (input : BitString N) : BitString M :=
