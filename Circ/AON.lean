@@ -80,10 +80,7 @@ private lemma AONFor_wireValue_gate {N : Nat} [NeZero N] (f : BitString N → Bo
       (AONFor.mkGate f i).eval ((AONFor f).wireValue x) := by
   have hge : ¬ ((Fin.natAdd N i).val < N) := by simp [Fin.natAdd]
   rw [Circuit.wireValue_ge _ _ _ hge]
-  congr 1
-  show (AONFor f).gates _ = AONFor.mkGate f i
-  simp only [AONFor]
-  congr 1
+  congr 1; simp only [AONFor]; congr 1
   exact Fin.ext (by simp [Fin.natAdd])
 
 @[simp] private lemma AONFor_outputs {N : Nat} [NeZero N] (f : BitString N → Bool) (j : Fin 1) :
@@ -292,9 +289,7 @@ private lemma AONForM_wireValue_gate {N M : Nat} [NeZero N] [NeZero M]
       (AONForM_mkGate f idx).eval ((AONForM f).wireValue x) := by
   have hge : ¬ ((⟨N + idx.val, by omega⟩ : Fin (N + M * 2 ^ N)).val < N) := by simp
   rw [Circuit.wireValue_ge _ _ _ hge]
-  congr 1
-  show (AONForM f).gates ⟨N + idx.val - N, _⟩ = AONForM_mkGate f idx
-  simp only [AONForM]; congr 1; exact Fin.ext (by simp)
+  congr 1; simp only [AONForM]; congr 1; exact Fin.ext (by simp)
 
 private lemma AONForM_mkGate_eval_false {N M : Nat}
     (f : BitString N → BitString M) (idx : Fin (M * 2 ^ N))

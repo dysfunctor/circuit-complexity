@@ -93,10 +93,10 @@ theorem wireValue_eq_wireValD {N G : Nat} [NeZero N]
     -- Acyclicity (before set, so set rewrites them consistently)
     have hacyc0 : ((c.gates ⟨w.val - N, hG⟩).inputs ⟨0, by omega⟩).val < w.val := by
       have h := c.acyclic ⟨w.val - N, hG⟩ ⟨0, by omega⟩
-      simp only [Fin.val_mk] at h; omega
+      simp only [] at h; omega
     have hacyc1 : ((c.gates ⟨w.val - N, hG⟩).inputs ⟨1, by omega⟩).val < w.val := by
       have h := c.acyclic ⟨w.val - N, hG⟩ ⟨1, by omega⟩
-      simp only [Fin.val_mk] at h; omega
+      simp only [] at h; omega
     -- set gate — rewrites h2, hacyc0, hacyc1 and the goal
     set gate := c.gates ⟨w.val - N, hG⟩ with gate_def
     -- IH for the two input wires
@@ -134,7 +134,7 @@ theorem wireValue_eq_wireValD {N G : Nat} [NeZero N]
         (c.wireValue input) (c.wireValue input) (fun _ => rfl)
       rw [this]; clear this
       -- Now both sides use encodeGate gate; unfold and simplify
-      simp [encodeGate, h2]
+      simp [encodeGate]
     intro h' j
     exact (show ∀ (g : Gate Basis.andOr2 (N + G)) (heq : g = c.gates ⟨↑w - N, h'⟩)
         (hfanIn : (c.gates ⟨↑w - N, h'⟩).fanIn = g.fanIn)
@@ -163,7 +163,7 @@ theorem circuit_eval_eq_evalD {N G : Nat} [NeZero N]
   -- RHS is wireValD at position N+G which unfolds to the same thing
   -- via circuitToDesc at index G (the else branch = encodeGate (c.outputs 0))
   conv_rhs => unfold wireValD
-  simp only [show ¬(N + G < N) from by omega, dite_false]
+  simp only []
   -- Simplify the circuitToDesc lookup: N + G.succ - 1 - N = G, which is not < G
   simp only [circuitToDesc, show ¬((⟨N + G.succ - 1 - N, (by omega : N + G.succ - 1 - N < G + 1)⟩ :
     Fin (G + 1)).val < G) from by simp, dite_false]
@@ -222,8 +222,7 @@ private theorem wireValD_padDesc_lt {N s s' : Nat} (d : CircDesc N s) (hs : 0 < 
     congr 1 <;> (congr 1 <;> (first | rfl | (congr 1; split_ifs with hlt <;> (
       first
       | exact wireValD_padDesc_lt d hs h x _ (by first | exact hw1 | exact hw2)
-      | rfl
-      | exact absurd trivial ‹¬True›))))
+      | rfl))))
   termination_by w.val
 
 -- Helper: padded wire values equal the last original output
@@ -291,9 +290,6 @@ theorem schnorr_lower_bound_circuit (N G : Nat) [NeZero N]
     (hN : 1 ≤ N) : G + 2 ≥ 2 * N := by
   have hG1 : 0 < G + 1 := Nat.succ_pos G
   have h := circuit_eval_eq_evalD c
-  have heval' : ∀ x, evalD hG1 (circuitToDesc c) x = comp.xor (Schnorr.xorBool N x) := by
-    intro x
-    have := congr_fun h x
-    rw [← this]
-    exact heval x
+  have heval' : ∀ x, evalD hG1 (circuitToDesc c) x = comp.xor (Schnorr.xorBool N x) :=
+    fun x => (congr_fun h x).symm ▸ heval x
   exact Schnorr.xor_lower_bound_2 N (G + 1) hG1 (circuitToDesc c) comp heval' hN
