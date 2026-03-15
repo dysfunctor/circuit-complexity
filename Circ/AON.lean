@@ -7,7 +7,7 @@ inductive AONOp where
   | or
   deriving Repr, DecidableEq
 
-private def AONOp.eval : (op : AONOp) → (n : Nat) → BitString n → Bool
+def AONOp.eval : (op : AONOp) → (n : Nat) → BitString n → Bool
   | .and, n, inputs => Fin.foldl n (fun acc i => acc && inputs i) true
   | .or, n, inputs => Fin.foldl n (fun acc i => acc || inputs i) false
 
