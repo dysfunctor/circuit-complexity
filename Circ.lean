@@ -3,6 +3,7 @@ import Circ.AON
 import Circ.XOR
 import Circ.EssentialInput
 import Circ.Shannon
+import Circ.ShannonX
 import Circ.LowerBound
 import Circ.Schnorr
 
@@ -29,6 +30,11 @@ is the minimum size of any circuit computing it.
   be computed by any fan-in-2 AND/OR circuit with fewer than `2^N / (5N)`
   gates.
 
+* **Shannon counting lower bound — extended basis**
+  (`shannon_lower_bound_circuit_x`):
+  The same `2^N / (5N)` lower bound holds for circuits over the richer
+  fan-in-2 AND/OR/NOT/XOR basis.
+
 * **Gate elimination lower bound** (`Circuit.gate_elimination_lower_bound`):
   Any circuit over bounded fan-in `k` AND/OR computing a function with `n'`
   essential inputs has size at least `n' / k`.
@@ -42,14 +48,16 @@ is the minimum size of any circuit computing it.
 Public modules (definitions a reviewer should read):
 
 * `Circ.Basic` — `Circuit`, `Basis`, `Gate`, `CompleteBasis`, `size_complexity`
-* `Circ.AON.Defs` — `AONOp`, `Basis.unboundedAON`, `Basis.boundedAON`, `Basis.andOr2`
+* `Circ.AON.Defs` — `AONOp`, `AONXOp`, `Basis.unboundedAON`, `Basis.boundedAON`,
+  `Basis.andOr2`, `Basis.andOrNotXor2`
 * `Circ.XOR` — `Schnorr.xorBool` (N-input parity)
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
 
 Theorem modules (re-export definitions + main results):
 
 * `Circ.AON` — functional completeness of AND/OR
-* `Circ.Shannon` — Shannon counting lower bound
+* `Circ.Shannon` — Shannon counting lower bound (AND/OR)
+* `Circ.ShannonX` — Shannon counting lower bound (AND/OR/NOT/XOR)
 * `Circ.LowerBound` — gate elimination lower bound
 * `Circ.Schnorr` — Schnorr's XOR lower bound
 

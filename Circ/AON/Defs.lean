@@ -63,3 +63,35 @@ theorem AONOp.eval_two_and (inputs : BitString 2) :
 theorem AONOp.eval_two_or (inputs : BitString 2) :
     AONOp.eval .or 2 inputs = (inputs 0 || inputs 1) := by
   simp [AONOp.eval, Fin.foldl_succ_last, Fin.foldl_zero]
+
+/-! ## AND/OR/NOT/XOR Basis -/
+
+/-- Operations in an AND/OR/NOT/XOR basis. All gates have fan-in exactly 2;
+    NOT ignores its second input. -/
+inductive AONXOp where
+  | and
+  | or
+  | not
+  | xor
+  deriving Repr, DecidableEq
+
+/-- Evaluate an AND/OR/NOT/XOR operation on 2 input bits.
+    NOT ignores the second input. -/
+def AONXOp.eval2 : AONXOp → BitString 2 → Bool
+  | .and, inputs => inputs 0 && inputs 1
+  | .or, inputs => inputs 0 || inputs 1
+  | .not, inputs => !inputs 0
+  | .xor, inputs => inputs 0 ^^ inputs 1
+
+/-- Fan-in-2 AND/OR/NOT/XOR basis. Every gate has exactly 2 inputs.
+    NOT ignores its second input.
+    Per-input negation flags are still present (as part of `Gate`). -/
+def Basis.andOrNotXor2 : Basis where
+  Op := AONXOp
+  arity _ := .exactly 2
+  eval op n harityOk inputs := op.eval2 (fun i => inputs ⟨i.val, by
+    change n = 2 at harityOk; omega⟩)
+
+/-- Every gate over `Basis.andOrNotXor2` has fan-in exactly 2. -/
+theorem andOrNotXor2_fanIn {W : Nat} (g : Gate Basis.andOrNotXor2 W) : g.fanIn = 2 :=
+  g.arityOk
