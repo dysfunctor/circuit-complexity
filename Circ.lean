@@ -9,6 +9,7 @@ import Circ.Schnorr
 import Circ.Restriction
 import Circ.DecisionTree
 import Circ.SwitchingLemma
+import Circ.ACNF
 
 /-! # Circuit Complexity Library
 
@@ -57,6 +58,7 @@ Public modules (definitions a reviewer should read):
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
 * `Circ.Restriction.Defs` — `Restriction`, `applyCNF`, `applyDNF`, `width`, `isKCNF`/`isKDNF`
 * `Circ.DecisionTree.Defs` — `DecisionTree`, `eval`, `depth`, `toDNF`/`toCNF`
+* `Circ.ACNF.Defs` — `ACNF`, `eval`, `depth`, `size`, `isAlternating`, `normalize`
 
 Theorem modules (re-export definitions + main results):
 
@@ -67,6 +69,7 @@ Theorem modules (re-export definitions + main results):
 * `Circ.Restriction` — restriction correctness and width preservation
 * `Circ.DecisionTree` — decision tree to CNF/DNF correctness
 * `Circ.SwitchingLemma` — Håstad's switching lemma (statement, sorry'd)
+* `Circ.ACNF` — alternating normal form: normalization correctness, CNF/DNF conversion
 
 Internal modules contain proof machinery (CircDesc, DNF construction,
 restriction/elimination arguments) and are not intended for direct use.
