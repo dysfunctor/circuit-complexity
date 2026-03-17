@@ -50,7 +50,8 @@ is the minimum size of any circuit computing it.
 
 Public modules (definitions a reviewer should read):
 
-* `Circ.Basic` — `Circuit`, `Basis`, `Gate`, `CompleteBasis`, `size_complexity`
+* `Circ.Basic` — `Circuit`, `Basis`, `Gate`, `CompleteBasis`, `size_complexity`,
+  `wireDepth`, `depth`
 * `Circ.AON.Defs` — `AONOp`, `Basis.unboundedAON`, `Basis.boundedAON`, `Basis.andOr2`
 * `Circ.NF.Defs` — `Literal`, `CNF`, `DNF`, `CNF.complexity`, `DNF.complexity`
 * `Circ.NF` — CNF/DNF lower bound for XOR (`xorBool_complexity_lb`)
@@ -58,7 +59,8 @@ Public modules (definitions a reviewer should read):
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
 * `Circ.Restriction.Defs` — `Restriction`, `applyCNF`, `applyDNF`, `width`, `isKCNF`/`isKDNF`
 * `Circ.DecisionTree.Defs` — `DecisionTree`, `eval`, `depth`, `toDNF`/`toCNF`
-* `Circ.ACNF.Defs` — `ACNF`, `eval`, `depth`, `size`, `isAlternating`, `normalize`
+* `Circ.ACNF.Defs` — `ACNF`, `eval`, `depth`, `size`, `leafCount`, `isAlternating`,
+  `normalize`, `wireToACNF`, `toACNF`, `maxFanIn`
 
 Theorem modules (re-export definitions + main results):
 
@@ -69,7 +71,8 @@ Theorem modules (re-export definitions + main results):
 * `Circ.Restriction` — restriction correctness and width preservation
 * `Circ.DecisionTree` — decision tree to CNF/DNF correctness
 * `Circ.SwitchingLemma` — Håstad's switching lemma (statement, sorry'd)
-* `Circ.ACNF` — alternating normal form: normalization correctness, CNF/DNF conversion
+* `Circ.ACNF` — alternating normal form: normalization correctness, CNF/DNF conversion,
+  circuit-to-ACNF conversion (Claim 3.1): evaluation, depth, alternation, leaf count
 
 Internal modules contain proof machinery (CircDesc, DNF construction,
 restriction/elimination arguments) and are not intended for direct use.

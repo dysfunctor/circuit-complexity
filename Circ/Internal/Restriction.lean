@@ -297,4 +297,47 @@ theorem applyDNF_isKDNF (ρ : Restriction N) (φ : DNF N) (k : Nat)
   obtain ⟨term, hterm, happ⟩ := hmem
   exact Nat.le_trans (applyTerm_length_le ρ term term' happ) (hk term hterm)
 
+/-! ## Composition lemmas -/
+
+@[simp] theorem compose_assign (ρ₂ ρ₁ : Restriction N) (i : Fin N) :
+    (ρ₂.compose ρ₁).assign i = match ρ₁.assign i with
+      | some b => some b
+      | none => ρ₂.assign i := rfl
+
+theorem compose_freeVars (ρ₂ ρ₁ : Restriction N) :
+    (ρ₂.compose ρ₁).freeVars = ρ₁.freeVars ∩ ρ₂.freeVars := by
+  ext i
+  simp only [freeVars, Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_inter,
+    compose_assign]
+  constructor
+  · intro h; rcases h₁ : ρ₁.assign i with _ | b <;> simp_all
+  · intro ⟨h₁, h₂⟩; simp [h₁, h₂]
+
+@[simp] theorem setVar_assign (ρ : Restriction N) (v : Fin N) (b : Bool) (i : Fin N) :
+    (ρ.setVar v b).assign i = if i = v then some b else ρ.assign i := rfl
+
+@[simp] theorem freeVar_assign (ρ : Restriction N) (v : Fin N) (i : Fin N) :
+    (ρ.freeVar v).assign i = if i = v then none else ρ.assign i := rfl
+
+/-- Setting and then freeing a variable restores the original restriction
+(on that variable). -/
+theorem freeVar_setVar (ρ : Restriction N) (v : Fin N) (b : Bool) :
+    (ρ.setVar v b).freeVar v = ρ.freeVar v := by
+  show (⟨_⟩ : Restriction N) = ⟨_⟩; congr 1; funext i
+  simp only [freeVar_assign, setVar_assign]; split_ifs <;> rfl
+
+/-- Freeing a variable that is already free is a no-op. -/
+theorem freeVar_of_free (ρ : Restriction N) (v : Fin N) (hv : ρ.assign v = none) :
+    ρ.freeVar v = ρ := by
+  show (⟨_⟩ : Restriction N) = ⟨_⟩; congr 1; funext i
+  split_ifs with h
+  · subst h; exact hv.symm
+  · rfl
+
+/-- Setting a variable and then freeing it gives the original with that variable freed. -/
+theorem setVar_freeVar_cancel (ρ : Restriction N) (v : Fin N) (b : Bool) :
+    (ρ.setVar v b).freeVar v = ρ.freeVar v := by
+  show (⟨_⟩ : Restriction N) = ⟨_⟩; congr 1; funext i
+  simp only [setVar_assign, freeVar_assign]; split_ifs <;> rfl
+
 end Restriction

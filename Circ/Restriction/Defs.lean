@@ -19,6 +19,7 @@ and operations for applying them to CNF/DNF formulas.
 
 `assign i = none` means variable `i` is free (unassigned).
 `assign i = some b` means variable `i` is fixed to `b`. -/
+@[ext]
 structure Restriction (N : Nat) where
   assign : Fin N → Option Bool
   deriving DecidableEq
@@ -94,6 +95,24 @@ Drops trivially false terms and removes resolved literals from
 surviving terms. -/
 def applyDNF (ρ : Restriction N) (φ : DNF N) : DNF N :=
   ⟨φ.terms.filterMap (ρ.applyTerm)⟩
+
+/-- Compose two restrictions: `ρ₂.compose ρ₁` first applies `ρ₁`, then `ρ₂`
+on any variables left free by `ρ₁`. A variable is fixed if either restriction
+fixes it. -/
+def compose (ρ₂ ρ₁ : Restriction N) : Restriction N where
+  assign i := match ρ₁.assign i with
+    | some b => some b
+    | none => ρ₂.assign i
+
+/-- Extend a restriction by additionally fixing variable `v` to value `b`.
+All other assignments are preserved. -/
+def setVar (ρ : Restriction N) (v : Fin N) (b : Bool) : Restriction N where
+  assign i := if i = v then some b else ρ.assign i
+
+/-- Free a variable in a restriction: set it to unassigned regardless of
+its current status. -/
+def freeVar (ρ : Restriction N) (v : Fin N) : Restriction N where
+  assign i := if i = v then none else ρ.assign i
 
 end Restriction
 

@@ -83,6 +83,21 @@ where
     | [] => 0
     | c :: cs => c.size + sizeList cs
 
+/-! ## Leaf count -/
+
+/-- The number of literal leaves in an ACNF tree.
+
+Used for the polynomial size bound in the circuit-to-ACNF conversion. -/
+def leafCount : ACNF N → Nat
+  | .lit _ => 1
+  | .and children => leafCountList children
+  | .or children => leafCountList children
+where
+  /-- Sum of leaf counts across a list of children. -/
+  leafCountList : List (ACNF N) → Nat
+    | [] => 0
+    | c :: cs => c.leafCount + leafCountList cs
+
 /-! ## Root operation -/
 
 /-- The operation at the root of an ACNF tree, or `none` for a literal. -/
@@ -157,3 +172,50 @@ A DNF `∨ᵢ (∧ⱼ lᵢⱼ)` becomes `OR [AND [lit lᵢⱼ, ...], ...]`. -/
 def DNF.toACNF (φ : DNF N) : ACNF N :=
   .or (φ.terms.map fun term =>
     .and (term.map fun l => .lit l))
+
+/-! ## Circuit to ACNF conversion -/
+
+namespace Circuit
+variable {N G : Nat} [NeZero N]
+
+/-- Convert a wire in an unbounded-fan-in AND/OR circuit to an ACNF tree.
+
+`pol = true` gives the wire's value; `pol = false` gives its negation.
+Negations are pushed to leaves via De Morgan duality. -/
+def wireToACNF (c : Circuit Basis.unboundedAON N 1 G)
+    (w : Fin (N + G)) (pol : Bool) : ACNF N :=
+  if h : w.val < N then
+    ACNF.lit ⟨⟨w.val, h⟩, pol⟩
+  else
+    have hG : w.val - N < G := by omega
+    let gate := c.gates ⟨w.val - N, hG⟩
+    let children := List.ofFn (fun k : Fin gate.fanIn =>
+      c.wireToACNF (gate.inputs k) (Bool.xor pol (gate.negated k)))
+    match gate.op, pol with
+    | .and, true  => ACNF.and children
+    | .or, false  => ACNF.and children
+    | .or, true   => ACNF.or children
+    | .and, false  => ACNF.or children
+termination_by w.val
+decreasing_by
+  have hacyc := c.acyclic ⟨w.val - N, hG⟩ k
+  have : (⟨w.val - N, hG⟩ : Fin G).val = w.val - N := rfl
+  omega
+
+/-- Convert a single-output unbounded-fan-in AND/OR circuit to an ACNF tree.
+
+Expands the circuit DAG into a tree, pushing negations to leaves. -/
+def toACNF (c : Circuit Basis.unboundedAON N 1 G) : ACNF N :=
+  let outGate := c.outputs 0
+  let children := List.ofFn (fun k : Fin outGate.fanIn =>
+    c.wireToACNF (outGate.inputs k) (Bool.xor true (outGate.negated k)))
+  match outGate.op with
+  | .and => ACNF.and children
+  | .or  => ACNF.or children
+
+/-- Maximum fan-in across all gates (internal + output) in a single-output circuit. -/
+def maxFanIn (c : Circuit B N 1 G) : Nat :=
+  let internal := Fin.foldl G (fun acc i => max acc (c.gates i).fanIn) 0
+  max internal (c.outputs 0).fanIn
+
+end Circuit
