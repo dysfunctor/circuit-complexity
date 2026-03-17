@@ -6,6 +6,9 @@ import Circ.EssentialInput
 import Circ.Shannon
 import Circ.LowerBound
 import Circ.Schnorr
+import Circ.Restriction
+import Circ.DecisionTree
+import Circ.SwitchingLemma
 
 /-! # Circuit Complexity Library
 
@@ -52,6 +55,8 @@ Public modules (definitions a reviewer should read):
 * `Circ.NF` — CNF/DNF lower bound for XOR (`xorBool_complexity_lb`)
 * `Circ.XOR` — `Schnorr.xorBool` (N-input parity)
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
+* `Circ.Restriction.Defs` — `Restriction`, `applyCNF`, `applyDNF`, `width`, `isKCNF`/`isKDNF`
+* `Circ.DecisionTree.Defs` — `DecisionTree`, `eval`, `depth`, `toDNF`/`toCNF`
 
 Theorem modules (re-export definitions + main results):
 
@@ -59,6 +64,9 @@ Theorem modules (re-export definitions + main results):
 * `Circ.Shannon` — Shannon counting lower bound
 * `Circ.LowerBound` — gate elimination lower bound
 * `Circ.Schnorr` — Schnorr's XOR lower bound
+* `Circ.Restriction` — restriction correctness and width preservation
+* `Circ.DecisionTree` — decision tree to CNF/DNF correctness
+* `Circ.SwitchingLemma` — Håstad's switching lemma (statement, sorry'd)
 
 Internal modules contain proof machinery (CircDesc, DNF construction,
 restriction/elimination arguments) and are not intended for direct use.
