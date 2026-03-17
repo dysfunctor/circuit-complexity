@@ -1,6 +1,7 @@
 import Circ.Restriction.Defs
 import Circ.DecisionTree.Defs
 import Mathlib.Data.Fintype.Pi
+import Mathlib.Data.Fintype.BigOperators
 
 open Classical in
 noncomputable section
@@ -40,6 +41,18 @@ def CNF.hasSmallDecisionTree (φ : CNF N) (s : Nat) : Prop :=
 depth at most `s` that computes the same function. -/
 def DNF.hasSmallDecisionTree (φ : DNF N) (s : Nat) : Prop :=
   ∃ t : DecisionTree N, t.depth ≤ s ∧ ∀ x, φ.eval x = t.eval x
+
+/-- The number of restrictions with free set `S` is `2^(N - |S|)`:
+each non-free variable can be set to `true` or `false`. -/
+theorem restrictionsWithFreeSet_card (N : Nat) (S : Finset (Fin N)) :
+    (restrictionsWithFreeSet N S).card = 2 ^ (Fintype.card (Fin N) - S.card) := by
+  simp only [restrictionsWithFreeSet, Finset.card_map, Fintype.card_piFinset]
+  simp only [apply_ite Finset.card, Finset.card_singleton,
+    Finset.card_pair (by decide : (some true : Option Bool) ≠ some false)]
+  rw [Finset.prod_ite (fun _ => 1) (fun _ => 2)]
+  simp only [Finset.prod_const_one, one_mul, Finset.prod_const, Finset.filter_not,
+    Finset.filter_mem_eq_inter, Finset.univ_inter]
+  congr 1; exact Finset.card_univ_diff S
 
 /-- **Håstad's Switching Lemma** (combinatorial counting form).
 
