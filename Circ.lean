@@ -7,6 +7,7 @@ import Circ.Shannon
 import Circ.LowerBound
 import Circ.Schnorr
 import Circ.Internal.NF
+import Circ.AC0
 
 /-! # Circuit Complexity Library
 
@@ -56,6 +57,9 @@ Public modules (definitions a reviewer should read):
 * `Circ.NF` — CNF/DNF lower bound for XOR (`xorBool_complexity_lb`)
 * `Circ.XOR` — `Schnorr.xorBool` (N-input parity)
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
+* `Circ.NF.Defs` — also contains `ACNF`, `eval`, `depth`, `size`, `leafCount`,
+  `isAlternating`, `normalize`, `CNF.toACNF`, `DNF.toACNF`
+* `Circ.AC0.Defs` — `BoolFunFamily`, `InAC0`, `InAC0NF`
 
 Theorem modules (re-export definitions + main results):
 
