@@ -52,13 +52,11 @@ Public modules (definitions a reviewer should read):
   `wireDepth`, `depth`
 * `Circ.AON.Defs` — `AONOp`, `Basis.unboundedAON`, `Basis.boundedAON`, `Basis.andOr2`
 * `Circ.NF.Defs` — `Literal`, `CNF`, `DNF`, `CNF.complexity`, `DNF.complexity`,
-  `ACNFTree` (raw AND/OR tree), `ACNF` (indexed alternating tree, alternation
-  enforced by construction), `CNF.toACNF`, `DNF.toACNF`
+  `ACNF` (indexed alternating tree, alternation enforced by construction),
+  `CNF.toACNF`, `DNF.toACNF`
 * `Circ.NF` — CNF/DNF lower bound for XOR (`xorBool_complexity_lb`)
 * `Circ.XOR` — `Schnorr.xorBool` (N-input parity)
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
-* `Circ.NF.Defs` — also contains `ACNF`, `eval`, `depth`, `size`, `leafCount`,
-  `isAlternating`, `normalize`, `CNF.toACNF`, `DNF.toACNF`
 * `Circ.AC0.Defs` — `BoolFunFamily`, `InAC0`, `InAC0NF`
 
 Theorem modules (re-export definitions + main results):
@@ -67,9 +65,8 @@ Theorem modules (re-export definitions + main results):
 * `Circ.Shannon` — Shannon counting lower bound
 * `Circ.LowerBound` — gate elimination lower bound
 * `Circ.Schnorr` — Schnorr's XOR lower bound
-* `Circ.Internal.NF` — alternating normal form: normalization correctness,
-  `ACNFTree.toACNF` (conversion to indexed `ACNF`), `Circuit.toACNF`:
-  evaluation, depth, leaf count
+* `Circ.Internal.NF` — alternating normal form: `Circuit.toACNF`
+  (direct circuit to ACNF conversion): evaluation, depth, leaf count
 
 Internal modules contain proof machinery (CircDesc, DNF construction,
 restriction/elimination arguments) and are not intended for direct use.
