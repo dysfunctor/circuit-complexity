@@ -8,6 +8,7 @@ establishes the circuit size complexity measure for Boolean functions.
 ## Main definitions
 
 * `BitString` — a string of bits of a specific length
+* `BoolFunFamily` — a family of Boolean functions indexed by input length
 * `Basis` — a basis of Boolean operations with arity constraints
 * `Circuit` — an acyclic Boolean circuit (well-formedness by construction)
 * `CompleteBasis` — typeclass for functionally complete bases
@@ -20,6 +21,11 @@ establishes the circuit size complexity measure for Boolean functions.
 
 /-- A BitString of length n. -/
 abbrev BitString n := Fin n → Bool
+
+/-- A family of Boolean functions indexed by input length `N`.
+
+Each member maps `N`-bit strings to a single output bit. -/
+abbrev BoolFunFamily := (N : Nat) → BitString N → Bool
 
 /-- Arity constraint for operations in a basis. -/
 inductive Arity where
