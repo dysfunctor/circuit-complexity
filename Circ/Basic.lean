@@ -9,6 +9,7 @@ establishes the circuit size complexity measure for Boolean functions.
 
 * `BitString` — a string of bits of a specific length
 * `BoolFunFamily` — a family of Boolean functions indexed by input length
+* `Restriction` — a partial assignment of Boolean variables
 * `Basis` — a basis of Boolean operations with arity constraints
 * `Circuit` — an acyclic Boolean circuit (well-formedness by construction)
 * `CompleteBasis` — typeclass for functionally complete bases
@@ -26,6 +27,11 @@ abbrev BitString n := Fin n → Bool
 
 Each member maps `N`-bit strings to a single output bit. -/
 abbrev BoolFunFamily := (N : Nat) → BitString N → Bool
+
+/-- A restriction on `N` variables is a partial assignment.
+`ρ i = some b` means variable `i` is fixed to value `b`;
+`ρ i = none` means variable `i` is free (unassigned, or "starred"). -/
+def Restriction (N : Nat) := Fin N → Option Bool
 
 /-- Arity constraint for operations in a basis. -/
 inductive Arity where
