@@ -15,6 +15,8 @@ flattening helpers, and direct construction from CNF/DNF.
 * `ACNFTree.flattenForAnd` / `ACNFTree.flattenForOr` — helpers for flattening
   consecutive same-op gates during circuit conversion
 * `CNF.toACNFTree` / `DNF.toACNFTree` — direct construction from normal forms
+* `InAC0NFTree` — predicate: the family is computed by constant-depth,
+  polynomial-leaf-count ACNF trees
 -/
 
 /-- An alternating normal form tree, indexed by a `Bool` tracking the root gate type.
@@ -120,6 +122,21 @@ def flatMapForOr : List ((b : Bool) × ACNFTree N b) → List (ACNFTree N true)
   | p :: ps => flattenForOr p ++ flatMapForOr ps
 
 end ACNFTree
+
+/-- A Boolean function family is in **AC0NFTree** if there exist constants `d`
+(depth bound) and `c` (leaf-count exponent) such that for every input length
+`N ≥ 1`, some ACNF tree of depth at most `d` and leaf count at most `N ^ c`
+computes `f N`.
+
+This is the normal-form analogue of `InAC0`: every AC0 circuit can be unrolled
+into an ACNF tree (via `Circuit.toACNF`) with depth preserved and leaf count
+polynomial in the circuit size. Therefore `InAC0 f → InAC0NFTree f`, and lower
+bounds proved against ACNF trees transfer to AC0. -/
+def InAC0NFTree (f : BoolFunFamily) : Prop :=
+  ∃ (d c : Nat), ∀ (N : Nat) [NeZero N],
+    ∃ (b : Bool) (acnf : ACNFTree N b),
+      acnf.depth ≤ d ∧ acnf.leafCount ≤ N ^ c ∧
+      acnf.eval = f N
 
 /-! ## Direct construction from CNF/DNF -/
 

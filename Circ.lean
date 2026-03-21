@@ -7,6 +7,7 @@ import Circ.Shannon
 import Circ.LowerBound
 import Circ.Schnorr
 import Circ.Internal.NF
+import Circ.AC0
 
 /-! # Circuit Complexity Library
 
@@ -47,15 +48,16 @@ is the minimum size of any circuit computing it.
 
 Public modules (definitions a reviewer should read):
 
-* `Circ.Basic` — `Circuit`, `Basis`, `Gate`, `CompleteBasis`, `size_complexity`,
-  `wireDepth`, `depth`
+* `Circ.Basic` — `BitString`, `BoolFunFamily`, `Circuit`, `Basis`, `Gate`,
+  `CompleteBasis`, `size_complexity`, `wireDepth`, `depth`
 * `Circ.AON.Defs` — `AONOp`, `Basis.unboundedAON`, `Basis.boundedAON`, `Basis.andOr2`
 * `Circ.NF.Defs` — `Literal`, `CNF`, `DNF`, `CNF.complexity`, `DNF.complexity`
 * `Circ.Internal.ACNFTree` — `ACNFTree` (indexed alternating tree, alternation
-  enforced by construction), `CNF.toACNFTree`, `DNF.toACNFTree`
+  enforced by construction), `CNF.toACNFTree`, `DNF.toACNFTree`, `InAC0NFTree`
 * `Circ.NF` — CNF/DNF lower bound for XOR (`xorBool_complexity_lb`)
 * `Circ.XOR` — `Schnorr.xorBool` (N-input parity)
 * `Circ.EssentialInput` — `IsEssentialInput`, `EssentialInputs`
+* `Circ.AC0.Defs` — `InAC0`
 
 Theorem modules (re-export definitions + main results):
 
