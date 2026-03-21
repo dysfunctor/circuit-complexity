@@ -1,5 +1,7 @@
 import Circ.Basic
 import Mathlib.Data.Fintype.Card
+import Mathlib.Data.Fintype.Option
+import Mathlib.Data.Fintype.Pi
 
 /-! # Internal: Restriction Infrastructure
 
@@ -232,5 +234,14 @@ theorem card_freeVar_eq (ρ : _root_.Restriction N) :
 providing a canonical indexing of free variables as a `BitString`. -/
 noncomputable def freeVarEquiv (ρ : _root_.Restriction N) : Fin ρ.numFree ≃ ρ.FreeVar :=
   (finCongr ρ.card_freeVar_eq.symm).trans (Fintype.equivFin ρ.FreeVar).symm
+
+/-! ## Sets of restrictions -/
+
+noncomputable instance instFintypeRestriction : Fintype (_root_.Restriction N) :=
+  inferInstanceAs (Fintype (Fin N → Option Bool))
+
+/-- The set of restrictions on `N` variables with exactly `s` free variables. -/
+noncomputable def sRestrictions (N s : Nat) : Finset (_root_.Restriction N) :=
+  Finset.univ.filter (fun ρ => numFree ρ = s)
 
 end Restriction

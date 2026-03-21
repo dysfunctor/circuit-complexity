@@ -1,6 +1,7 @@
 import Circ.AC0.Defs
 import Circ.Internal.AC0
 import Circ.XOR
+import Circ.Restriction
 
 /-! # AC0 — The AC0 Complexity Class
 
@@ -33,4 +34,25 @@ def parityFamily : BoolFunFamily := fun N => Schnorr.xorBool N
 The N-input XOR function cannot be computed by any constant-depth,
 polynomial-size family of unbounded-fan-in AND/OR circuits. -/
 theorem parity_not_in_AC0 : ¬InAC0 parityFamily := by
+  sorry
+
+/-! ## Switching Lemma -/
+
+open Classical
+
+/-- **Switching Lemma** (Håstad, 1986).
+
+Let `φ` be a CNF formula on `N` variables with clause width `φ.width`.
+Among all restrictions leaving exactly `s` free variables, the number
+whose restricted function has a minterm longer than `d` satisfies:
+
+    |{ρ | numFree ρ = s ∧ maxMintermLength(φ|_ρ) > d}| · N ^ d
+      ≤ |{ρ | numFree ρ = s}| · (8 · width · s) ^ d
+
+This is the counting (set-size) form of the probabilistic statement
+`Prob[min(f_ρ) > d] ≤ (8pt)^d` with `p = s / N`. -/
+theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
+    ((Restriction.sRestrictions N s).filter (fun ρ =>
+      Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card * N ^ d ≤
+    (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
   sorry

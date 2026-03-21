@@ -62,6 +62,11 @@ def eval (φ : CNF N) (x : BitString N) : Bool :=
 /-- The complexity of a CNF formula is its number of clauses. -/
 def complexity (φ : CNF N) : Nat := φ.clauses.length
 
+/-- The width of a CNF formula: the maximum number of literals in any clause.
+Returns 0 for the empty CNF. -/
+def width (φ : CNF N) : Nat :=
+  φ.clauses.foldl (fun acc c => max acc c.length) 0
+
 end CNF
 
 /-! ## DNF -/
