@@ -34,8 +34,8 @@ def parityFamily : BoolFunFamily := fun N => Schnorr.xorBool N
 
 The N-input XOR function cannot be computed by any constant-depth,
 polynomial-size family of unbounded-fan-in AND/OR circuits. -/
-theorem parity_not_in_AC0 : ¬InAC0 parityFamily := by
-  sorry
+theorem parity_not_in_AC0 : ¬InAC0 parityFamily :=
+  not_InAC0NFTree_implies_not_InAC0 _ parity_not_in_AC0NFTree
 
 /-! ## Switching Lemma -/
 

@@ -1,5 +1,6 @@
 import Circ.Basic
 import Circ.NF.Defs
+import Circ.XOR
 
 /-! # ACNFTree: Alternating Circuit Normal Form Tree
 
@@ -153,3 +154,11 @@ A DNF `∨ᵢ (∧ⱼ lᵢⱼ)` becomes `OR [AND [lit lᵢⱼ, ...], ...]`. -/
 def DNF.toACNFTree (φ : DNF N) : ACNFTree N false :=
   .or (φ.terms.map fun term =>
     .and (term.map fun l => .lit l))
+
+/-- **Parity is not in AC0NFTree** (Furst–Saxe–Sipser / Håstad).
+
+The N-input XOR function cannot be computed by any constant-depth,
+polynomial-leaf-count family of ACNF trees. This is the core lower bound;
+`parity_not_in_AC0` follows via `not_InAC0NFTree_implies_not_InAC0`. -/
+theorem parity_not_in_AC0NFTree : ¬InAC0NFTree (fun N => Schnorr.xorBool N) := by
+  sorry
