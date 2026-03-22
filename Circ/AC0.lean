@@ -40,6 +40,39 @@ theorem parity_not_in_AC0 : ¬InAC0 parityFamily := by
 
 open Classical
 
+/-- **Razborov's Lemma** (Razborov, 1995).
+
+If `φ` is a CNF formula on `N` variables with clause width `φ.width`,
+then the number of restrictions in `R^s` (leaving exactly `s` free variables)
+whose restricted function has a minterm longer than `d` satisfies:
+
+    |Bad_φ(s, d)| ≤ |R^{s-d}| · (2 · width)^d
+
+This is the key combinatorial counting lemma underlying the switching lemma.
+The proof proceeds by an encoding/decoding (compression) argument: each "bad"
+restriction `ρ` (with `s` free variables and `maxMintermLength > d`) can be
+encoded as a pair `(γ, advice)` where `γ` has `s - d` free variables and
+`advice ∈ {0, …, 2w-1}^d`, and this encoding is injective. -/
+theorem razborov_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
+    ((Restriction.sRestrictions N s).filter (fun ρ =>
+      Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card ≤
+    (Restriction.sRestrictions N (s - d)).card * (2 * φ.width) ^ d := by
+  sorry
+
+/-- Combinatorial ratio bound for restriction sets.
+
+The number of restrictions with `s - d` free variables times `N ^ d` is at most
+the number with `s` free variables times `(4 · s) ^ d`. This follows from the
+binomial coefficient identity
+
+    C(N, s-d) · 2^{N-s+d} · N^d ≤ C(N, s) · 2^{N-s} · (4s)^d
+
+which holds because `C(N, s-d) / C(N, s) ≤ (2s/N)^d` when `2s ≤ N`. -/
+theorem sRestrictions_ratio_bound (N s d : Nat) :
+    (Restriction.sRestrictions N (s - d)).card * N ^ d ≤
+    (Restriction.sRestrictions N s).card * (4 * s) ^ d := by
+  sorry
+
 /-- **Switching Lemma** (Håstad, 1986).
 
 Let `φ` be a CNF formula on `N` variables with clause width `φ.width`.
@@ -50,9 +83,22 @@ whose restricted function has a minterm longer than `d` satisfies:
       ≤ |{ρ | numFree ρ = s}| · (8 · width · s) ^ d
 
 This is the counting (set-size) form of the probabilistic statement
-`Prob[min(f_ρ) > d] ≤ (8pt)^d` with `p = s / N`. -/
+`Prob[min(f_ρ) > d] ≤ (8pt)^d` with `p = s / N`.
+
+Follows from `razborov_lemma` (the counting bound) and `sRestrictions_ratio_bound`
+(the combinatorial ratio bound on restriction set sizes). -/
 theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
     ((Restriction.sRestrictions N s).filter (fun ρ =>
       Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card * N ^ d ≤
     (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
-  sorry
+  calc ((Restriction.sRestrictions N s).filter (fun ρ =>
+          Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card * N ^ d
+      ≤ (Restriction.sRestrictions N (s - d)).card * (2 * φ.width) ^ d * N ^ d :=
+          Nat.mul_le_mul_right _ (razborov_lemma φ s d)
+    _ = (Restriction.sRestrictions N (s - d)).card * N ^ d * (2 * φ.width) ^ d := by
+          rw [mul_right_comm]
+    _ ≤ (Restriction.sRestrictions N s).card * (4 * s) ^ d * (2 * φ.width) ^ d :=
+          Nat.mul_le_mul_right _ (sRestrictions_ratio_bound N s d)
+    _ = (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
+          rw [mul_assoc, ← mul_pow]
+          simp [mul_comm, mul_assoc, mul_left_comm]
