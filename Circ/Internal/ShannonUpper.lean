@@ -911,9 +911,9 @@ private theorem or_andLayerSem_eq_f (N : Nat) [NeZero N]
     - The OR of the accumulated value and the new AND output gives
       the extended foldl
 
-    The data tree leaf and column library output wire-value proofs require
-    tracing wireValue through Sections B and D respectively. These are
-    sorry'd pending tree-level induction proofs. -/
+    The data tree leaf and column library output wire-value proofs
+    trace wireValue through Sections B and D respectively via
+    tree-level induction. -/
 
 private theorem wireValue_dataLeaf (N : Nat) [NeZero N]
     (f : BitString N → Bool) (hN : 16 ≤ N) (x : BitString N)
