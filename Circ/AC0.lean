@@ -1,5 +1,6 @@
 import Circ.AC0.Defs
 import Circ.Internal.AC0
+import Circ.Internal.RestrictionCombinatorics
 import Circ.XOR
 import Circ.Restriction
 
@@ -59,20 +60,6 @@ theorem razborov_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
     (Restriction.sRestrictions N (s - d)).card * (2 * φ.width) ^ d := by
   sorry
 
-/-- Combinatorial ratio bound for restriction sets.
-
-The number of restrictions with `s - d` free variables times `N ^ d` is at most
-the number with `s` free variables times `(4 · s) ^ d`. This follows from the
-binomial coefficient identity
-
-    C(N, s-d) · 2^{N-s+d} · N^d ≤ C(N, s) · 2^{N-s} · (4s)^d
-
-which holds because `C(N, s-d) / C(N, s) ≤ (2s/N)^d` when `2s ≤ N`. -/
-theorem sRestrictions_ratio_bound (N s d : Nat) :
-    (Restriction.sRestrictions N (s - d)).card * N ^ d ≤
-    (Restriction.sRestrictions N s).card * (4 * s) ^ d := by
-  sorry
-
 /-- **Switching Lemma** (Håstad, 1986).
 
 Let `φ` be a CNF formula on `N` variables with clause width `φ.width`.
@@ -87,7 +74,8 @@ This is the counting (set-size) form of the probabilistic statement
 
 Follows from `razborov_lemma` (the counting bound) and `sRestrictions_ratio_bound`
 (the combinatorial ratio bound on restriction set sizes). -/
-theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
+theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat)
+    (hds : d ≤ s) (h2sN : 2 * s ≤ N) :
     ((Restriction.sRestrictions N s).filter (fun ρ =>
       Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card * N ^ d ≤
     (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
@@ -98,7 +86,7 @@ theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
     _ = (Restriction.sRestrictions N (s - d)).card * N ^ d * (2 * φ.width) ^ d := by
           rw [mul_right_comm]
     _ ≤ (Restriction.sRestrictions N s).card * (4 * s) ^ d * (2 * φ.width) ^ d :=
-          Nat.mul_le_mul_right _ (sRestrictions_ratio_bound N s d)
+          Nat.mul_le_mul_right _ (sRestrictions_ratio_bound N s d hds h2sN)
     _ = (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
           rw [mul_assoc, ← mul_pow]
           simp [mul_comm, mul_assoc, mul_left_comm]
