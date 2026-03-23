@@ -6,7 +6,7 @@ This module provides the public API for restrictions (partial assignments of
 Boolean variables): applying a restriction to a Boolean function, minterms,
 and the maximum minterm length.
 
-Core definitions (`Restriction`, `isFree`, `comp`, `fillIn`, etc.) are in
+Core definitions (`Restriction`, `isFree`, `fillIn`, etc.) are in
 `Circ.Internal.Restriction` and re-exported here.
 
 ## Main definitions
