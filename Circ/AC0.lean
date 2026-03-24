@@ -32,6 +32,13 @@ theorem parity_not_in_AC0 : ¬InAC0 parityFamily := by
 
 open Classical
 
+/-- The set of "bad" restrictions: those in `R^s` whose restricted function
+has a minterm longer than `d`. -/
+noncomputable def badRestrictions {N : Nat} (φ : CNF N) (s d : Nat) :
+    Finset (Restriction N) :=
+  (Restriction.sRestrictions N s).filter (fun ρ =>
+    Restriction.maxMintermLength (ρ.restrict φ.eval) > d)
+
 /-- **Razborov's Lemma** (Razborov, 1995).
 
 If `φ` is a CNF formula on `N` variables with clause width `φ.width`,
@@ -46,8 +53,7 @@ restriction `ρ` (with `s` free variables and `maxMintermLength > d`) can be
 encoded as a pair `(γ, advice)` where `γ` has `s - d` free variables and
 `advice ∈ {0, …, 2w-1}^d`, and this encoding is injective. -/
 theorem razborov_lemma {N : Nat} (φ : CNF N) (s d : Nat) :
-    ((Restriction.sRestrictions N s).filter (fun ρ =>
-      Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card ≤
+    (badRestrictions φ s d).card ≤
     (Restriction.sRestrictions N (s - d)).card * (2 * φ.width) ^ d := by
   sorry
 
@@ -67,11 +73,9 @@ Follows from `razborov_lemma` (the counting bound) and `sRestrictions_ratio_boun
 (the combinatorial ratio bound on restriction set sizes). -/
 theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat)
     (hds : d ≤ s) (h2sN : 2 * s ≤ N) :
-    ((Restriction.sRestrictions N s).filter (fun ρ =>
-      Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card * N ^ d ≤
+    (badRestrictions φ s d).card * N ^ d ≤
     (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
-  calc ((Restriction.sRestrictions N s).filter (fun ρ =>
-          Restriction.maxMintermLength (ρ.restrict φ.eval) > d)).card * N ^ d
+  calc (badRestrictions φ s d).card * N ^ d
       ≤ (Restriction.sRestrictions N (s - d)).card * (2 * φ.width) ^ d * N ^ d :=
           Nat.mul_le_mul_right _ (razborov_lemma φ s d)
     _ = (Restriction.sRestrictions N (s - d)).card * N ^ d * (2 * φ.width) ^ d := by
@@ -80,4 +84,4 @@ theorem switching_lemma {N : Nat} (φ : CNF N) (s d : Nat)
           Nat.mul_le_mul_right _ (sRestrictions_ratio_bound N s d hds h2sN)
     _ = (Restriction.sRestrictions N s).card * (8 * φ.width * s) ^ d := by
           rw [mul_assoc, ← mul_pow]
-          simp [mul_comm, mul_assoc, mul_left_comm]
+          simp only [mul_comm, mul_assoc, mul_left_comm, Nat.reduceMul]

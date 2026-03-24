@@ -52,7 +52,7 @@ private lemma Restriction.fiber_card {N : Nat} (S : Finset (Fin N)) (hs : S.card
 
 /-- Cardinality of `sRestrictions`: the number of restrictions on `N` variables
 with exactly `s` free variables is `C(N, s) · 2^{N-s}`. -/
-private lemma sRestrictions_card (N s : Nat) (hs : s ≤ N) :
+private lemma sRestrictions_card (N s : Nat) :
     (Restriction.sRestrictions N s).card = N.choose s * 2 ^ (N - s) := by
   have hbij : Restriction.sRestrictions N s =
       (Finset.powersetCard s Finset.univ).biUnion
@@ -100,16 +100,16 @@ private lemma descFactorial_mul_pow_le (s N : Nat) (h2sN : 2 * s ≤ N) :
     have h_factor : (s - d) * (2 * N) ≤ (N - s + 1) * (4 * s) :=
       calc (s - d) * (2 * N)
           ≤ s * (4 * (N - s + 1)) := Nat.mul_le_mul (by omega) (by omega)
-        _ = (N - s + 1) * (4 * s) := by simp [mul_comm, mul_left_comm]
+        _ = (N - s + 1) * (4 * s) := by simp only [mul_comm, mul_left_comm]
     calc (s - d) * s.descFactorial d * ((2 * N) ^ d * (2 * N))
         = (s - d) * (2 * N) * (s.descFactorial d * (2 * N) ^ d) := by
-          simp [mul_comm, mul_assoc, mul_left_comm]
+          simp only [mul_comm, mul_assoc, mul_left_comm]
       _ ≤ (s - d) * (2 * N) * ((N - s + (d + 1)).descFactorial d * (4 * s) ^ d) :=
           Nat.mul_le_mul_left _ h_inner
       _ ≤ ((N - s + 1) * (4 * s)) * ((N - s + (d + 1)).descFactorial d * (4 * s) ^ d) :=
           Nat.mul_le_mul_right _ h_factor
       _ = (N - s + 1) * (N - s + (d + 1)).descFactorial d * ((4 * s) ^ d * (4 * s)) := by
-          simp [mul_comm, mul_assoc, mul_left_comm]
+          simp only [mul_comm, mul_assoc, mul_left_comm]
 
 /-- Combinatorial ratio bound for restriction sets.
 
@@ -123,19 +123,19 @@ which holds because `C(N, s-d) / C(N, s) ≤ (2s/N)^d` when `2s ≤ N`. -/
 theorem sRestrictions_ratio_bound (N s d : Nat) (hds : d ≤ s) (h2sN : 2 * s ≤ N) :
     (Restriction.sRestrictions N (s - d)).card * N ^ d ≤
     (Restriction.sRestrictions N s).card * (4 * s) ^ d := by
-  rw [sRestrictions_card N (s - d) (by omega), sRestrictions_card N s (by omega)]
+  rw [sRestrictions_card N (s - d), sRestrictions_card N s]
   suffices h : N.choose (s - d) * (2 * N) ^ d ≤ N.choose s * (4 * s) ^ d by
     have h_exp : N - (s - d) = N - s + d := by omega
     rw [h_exp, pow_add]
     calc N.choose (s - d) * (2 ^ (N - s) * 2 ^ d) * N ^ d
         = 2 ^ (N - s) * (N.choose (s - d) * (2 ^ d * N ^ d)) := by
-          simp [mul_comm, mul_assoc, mul_left_comm]
+          simp only [mul_comm, mul_assoc, mul_left_comm]
       _ = 2 ^ (N - s) * (N.choose (s - d) * (2 * N) ^ d) := by
           rw [← mul_pow]
       _ ≤ 2 ^ (N - s) * (N.choose s * (4 * s) ^ d) :=
           Nat.mul_le_mul_left _ h
       _ = N.choose s * 2 ^ (N - s) * (4 * s) ^ d := by
-          simp [mul_comm, mul_assoc, mul_left_comm]
+          simp only [mul_comm, mul_assoc, mul_left_comm]
   have h_desc := descFactorial_mul_pow_le s N h2sN d hds
   rw [Nat.descFactorial_eq_factorial_mul_choose, Nat.descFactorial_eq_factorial_mul_choose] at h_desc
   have h_choose : s.choose d * (2 * N) ^ d ≤ (N - s + d).choose d * (4 * s) ^ d := by
@@ -151,11 +151,11 @@ theorem sRestrictions_ratio_bound (N s d : Nat) (hds : d ≤ s) (h2sN : 2 * s �
     Nat.le_of_mul_le_mul_left this (Nat.choose_pos (by omega))
   calc (N - s + d).choose d * (N.choose (s - d) * (2 * N) ^ d)
       = N.choose (s - d) * (N - s + d).choose d * (2 * N) ^ d := by
-        simp [mul_comm, mul_assoc, mul_left_comm]
+        simp only [mul_comm, mul_assoc, mul_left_comm]
     _ = N.choose s * s.choose d * (2 * N) ^ d := by rw [← h_id]
     _ = N.choose s * (s.choose d * (2 * N) ^ d) := by
-        simp [mul_assoc]
+        simp only [mul_assoc]
     _ ≤ N.choose s * ((N - s + d).choose d * (4 * s) ^ d) :=
         Nat.mul_le_mul_left _ h_choose
     _ = (N - s + d).choose d * (N.choose s * (4 * s) ^ d) := by
-        simp [mul_comm, mul_left_comm]
+        simp only [mul_comm, mul_left_comm]

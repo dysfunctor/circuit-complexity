@@ -25,7 +25,7 @@ on `ρ.numFree` input bits. Free variables are ordered canonically via
 `freeVarEquiv`. -/
 noncomputable def restrict (ρ : Restriction N) (f : BitString N → Bool) :
     BitString ρ.numFree → Bool :=
-  fun x => ρ.applyFun f (x ∘ ρ.freeVarEquiv.symm)
+  fun x => f (ρ.fillIn (x ∘ ρ.freeVarEquiv.symm))
 
 /-! ## Minterms -/
 
@@ -39,9 +39,11 @@ and is minimal: unfixing any single fixed variable breaks this property. -/
 def IsMinterm (f : BitString N → Bool) (ρ : Restriction N) : Prop :=
   ρ.MakesConstTrue f ∧ ∀ i : Fin N, ¬ρ.isFree i → ¬(ρ.unfix i).MakesConstTrue f
 
+open Classical
+
 /-- `maxMintermLength f` is the length of the longest minterm of `f`.
 Returns 0 if `f` has no minterms. -/
 noncomputable def maxMintermLength {N : Nat} (f : BitString N → Bool) : Nat :=
-  sSup {k : Nat | ∃ ρ : Restriction N, IsMinterm f ρ ∧ ρ.length = k}
+  (Finset.univ.filter (IsMinterm f)).sup Restriction.length
 
 end Restriction
