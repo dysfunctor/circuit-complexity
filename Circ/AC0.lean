@@ -1,4 +1,5 @@
 import Circ.AC0.Defs
+import Circ.Internal.AC0
 import Circ.Internal.RestrictionCombinatorics
 import Circ.NF.Defs
 import Circ.XOR
@@ -21,12 +22,12 @@ This module re-exports the AC0 definitions and main results.
 /-- The parity (XOR) function family: the `N`-input XOR for each input length. -/
 def parityFamily : BoolFunFamily := fun N => Schnorr.xorBool N
 
-/-- **Parity is not in AC0**.
+/-- **Parity is not in AC0** (Furst–Saxe–Sipser / Håstad).
 
 The N-input XOR function cannot be computed by any constant-depth,
 polynomial-size family of unbounded-fan-in AND/OR circuits. -/
-theorem parity_not_in_AC0 : ¬InAC0 parityFamily := by
-  sorry
+theorem parity_not_in_AC0 : ¬InAC0 parityFamily :=
+  not_InAC0NFTree_implies_not_InAC0 _ parity_not_in_AC0NFTree
 
 /-! ## Switching Lemma -/
 
