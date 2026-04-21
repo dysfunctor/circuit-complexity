@@ -9,6 +9,7 @@ import Circ.Schnorr
 import Circ.AC0
 import Circ.Nondeterminism
 import Circ.Valiant
+import Circ.NC1Lin
 
 /-! # Circuit Complexity Library
 
