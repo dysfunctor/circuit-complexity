@@ -74,8 +74,9 @@ inductive isLive (c : Circuit B N M G) : Fin (N + G + M) → Prop
       isLive c u
 
 /-- Classical decidability of liveness. `prune` is `noncomputable`
-regardless, so there is no loss. -/
-noncomputable instance (c : Circuit B N M G) (v : Fin (N + G + M)) :
+regardless, so there is no loss. Scoped to this file to avoid
+overriding computable `Decidable` instances elsewhere. -/
+private noncomputable instance (c : Circuit B N M G) (v : Fin (N + G + M)) :
     Decidable (c.isLive v) := Classical.propDecidable _
 
 /-- If `u` has a digraph edge to a live vertex `v`, then `u` is live. -/
@@ -588,12 +589,10 @@ lemma pruneLabel_isLegal (c : Circuit B N M G) :
       show u.val = (c.translateInput ((c.gates (c.pruneEmb i')).inputs k) _).val
       rw [← hk]; rfl
     by_cases hw_input : wOld.val < N
-    · -- Primary-input case: `u.val = wOld.val < N`.
-      have hu_primary : u.val < N := by
+    · have hu_primary : u.val < N := by
         rw [hu_val, c.translateInput_of_lt wOld _ hw_input]
         exact hw_input
       rw [c.pruneLabel_of_input hu_primary]
-      -- `c.wireDepth ⟨N + (c.pruneEmb i').val, _⟩ ≥ 1 > 0`.
       have h_ge1 :
           1 ≤ c.wireDepth ⟨N + (c.pruneEmb i').val, by
               have := (c.pruneEmb i').isLt; omega⟩ := by
@@ -603,8 +602,7 @@ lemma pruneLabel_isLegal (c : Circuit B N M G) :
         rw [c.gateWireDepth _ hne]
         omega
       omega
-    · -- Gate case: `wOld.val ≥ N`, so the translation goes through `pruneIdx`.
-      have hw_N_le : N ≤ wOld.val := Nat.le_of_not_lt hw_input
+    · have hw_N_le : N ≤ wOld.val := Nat.le_of_not_lt hw_input
       have hw_lt : wOld.val < N + G := wOld.isLt
       have hjOld_bnd : wOld.val - N < G := by omega
       set jOld : Fin G := ⟨wOld.val - N, hjOld_bnd⟩ with hjOld_def
@@ -666,17 +664,14 @@ lemma pruneLabel_isLegal (c : Circuit B N M G) :
       show u.val = (c.translateInput ((c.outputs j).inputs k) _).val
       rw [← hk]; rfl
     by_cases hw_input : wOld.val < N
-    · -- Primary-input source.
-      have hu_primary : u.val < N := by
+    · have hu_primary : u.val < N := by
         rw [hu_val, c.translateInput_of_lt wOld _ hw_input]
         exact hw_input
       rw [c.pruneLabel_of_input hu_primary]
-      -- `c.outputDepth j ≥ 1`.
       show 0 < c.outputDepth j
       show 0 < 1 + _
       omega
-    · -- Gate source.
-      have hw_N_le : N ≤ wOld.val := Nat.le_of_not_lt hw_input
+    · have hw_N_le : N ≤ wOld.val := Nat.le_of_not_lt hw_input
       have hw_lt : wOld.val < N + G := wOld.isLt
       have hjOld_bnd : wOld.val - N < G := by omega
       set jOld : Fin G := ⟨wOld.val - N, hjOld_bnd⟩ with hjOld_def

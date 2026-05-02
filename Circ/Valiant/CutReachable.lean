@@ -332,27 +332,22 @@ theorem cutReachable_card_le_pow_cutDepth
             change c.cutWireDepth F ((c.gates ⟨w.val - N, by omega⟩).inputs k) ≤ _
             omega
           exact h_ih.trans (Nat.pow_le_pow_right (by decide) h_cwd_le)
-      -- Step 1: split biUnion card into sum of per-`k` cards.
       have h1 :
           (Finset.univ.biUnion contribI).card + (Finset.univ.biUnion contribE).card ≤
             (∑ k, (contribI k).card) + (∑ k, (contribE k).card) :=
         add_le_add Finset.card_biUnion_le Finset.card_biUnion_le
-      -- Step 2: combine into a single sum of per-`k` totals.
       have h2 :
           (∑ k, (contribI k).card) + (∑ k, (contribE k).card) =
             ∑ k, ((contribI k).card + (contribE k).card) :=
         (Finset.sum_add_distrib).symm
-      -- Step 3: per-`k` total is bounded by `2^(cutWireDepth w - 1)`.
       have h3 :
           ∑ k, ((contribI k).card + (contribE k).card) ≤
             ∑ _k : Fin gate.fanIn, 2 ^ (c.cutWireDepth F w - 1) :=
         Finset.sum_le_sum (fun k _ => h_each k)
-      -- Step 4: evaluate the constant sum as `fanIn * 2^(…)`.
       have h4 :
           (∑ _k : Fin gate.fanIn, 2 ^ (c.cutWireDepth F w - 1)) =
             gate.fanIn * 2 ^ (c.cutWireDepth F w - 1) := by
         rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, Nat.nsmul_eq_mul]
-      -- Step 5: fanIn = 2 and `2 * 2^(d-1) = 2^d`.
       have h5 : gate.fanIn * 2 ^ (c.cutWireDepth F w - 1) = 2 ^ c.cutWireDepth F w := by
         rw [hfanIn]
         conv_rhs =>

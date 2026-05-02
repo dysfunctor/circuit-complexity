@@ -98,10 +98,7 @@ theorem fromFunctionOnSet_eval (f : BitString N → Bool)
   constructor
   · intro hAll
     by_contra hfx
-    have hfx' : f x = false := by
-      match hc : f x with
-      | false => rfl
-      | true => exact absurd hc hfx
+    have hfx' : f x = false := Bool.eq_false_iff.mpr hfx
     -- Apply hAll at α = x restricted to S.
     set α : {i // i ∈ S} → Bool := fun i => x i.val with hα_def
     have hf_ext : f (extendFromS S α) = false := by

@@ -370,7 +370,7 @@ lemma cutReachableInputs_card_le_pow_deleted_depth
         Nat.le_add_right _ _
     _ ≤ 2 ^ c.cutWireDepth F w := h1
     _ ≤ 2 ^ (c.toDigraph.deleteEdges F).depth :=
-        Nat.pow_le_pow_right (by decide) h2
+        Nat.pow_le_pow_right two_pos h2
 
 /-- Output's input cone (cut-aware) for fan-in-2 has at most `2 ^ (d+1)` inputs. -/
 lemma outputCutReachableInputs_card_le
@@ -410,7 +410,7 @@ lemma outputCNF_complexity_le_pow_pow
     (c.outputCNF F α j).complexity ≤
       2 ^ (2 ^ ((c.toDigraph.deleteEdges F).depth + 1)) := by
   exact (c.outputCNF_complexity_le F α j).trans
-    (Nat.pow_le_pow_right (by decide)
+    (Nat.pow_le_pow_right two_pos
       (c.outputCutReachableInputs_card_le F j))
 
 /-- Each consistency CNF has at most `2 ^ (2 ^ d)` clauses. -/
@@ -421,7 +421,7 @@ lemma consistencyCNF_complexity_le_pow_pow
     (c.consistencyCNF F α e h).complexity ≤
       2 ^ (2 ^ (c.toDigraph.deleteEdges F).depth) := by
   exact (c.consistencyCNF_complexity_le F α e h).trans
-    (Nat.pow_le_pow_right (by decide)
+    (Nat.pow_le_pow_right two_pos
       (c.cutReachableInputs_card_le_pow_deleted_depth F _))
 
 /-- **Per-α complexity bound.** Each `ψ_α` has at most
@@ -439,8 +439,8 @@ theorem psiCNF_complexity_le
   have h_out := c.outputCNF_complexity_le_pow_pow F α j
   -- Each consistency term ≤ 2^(2^d) ≤ 2^(2^(d+1))
   have h_pow_le : (2 : ℕ) ^ (2 ^ d) ≤ 2 ^ (2 ^ (d + 1)) :=
-    Nat.pow_le_pow_right (by decide)
-      (Nat.pow_le_pow_right (by decide) (by omega))
+    Nat.pow_le_pow_right two_pos
+      (Nat.pow_le_pow_right two_pos (by omega))
   have h_each : ∀ φ ∈ c.consistencyCNFs F α hF,
       φ.complexity ≤ 2 ^ (2 ^ (d + 1)) := by
     intro φ hφ

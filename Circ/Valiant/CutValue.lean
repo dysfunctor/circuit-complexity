@@ -10,7 +10,7 @@ were a fresh variable taking the value supplied by `α`, with primary
 inputs taking values from `x`.
 
 This is the basic machinery behind Jukna's Lemma 11.1's Σ₃
-construction (step 4 of the outline): after `depth_reduction` returns
+construction: after `depth_reduction` returns
 a set `F` of edges to cut, the circuit "evaluated with cuts" becomes a
 function of both the primary inputs `x` and the cut-wire variables
 `y`. Each ψ_α(x) of the sum-of-CNFs is built by evaluating `cutValue`
@@ -183,10 +183,8 @@ theorem cutValue_eq_wireValue_of_self_consistent (c : Circuit B N M G)
       have h_ih := ih ((c.gates ⟨w.val - N, by omega⟩).inputs k).val h_lt_n
         ((c.gates ⟨w.val - N, by omega⟩).inputs k) rfl
       split_ifs with h_cut
-      · -- Cut edge: α = cutValue at source = wireValue (by IH).
-        rw [(hα ⟨_, h_cut⟩ h_input_lt).symm]
+      · rw [(hα ⟨_, h_cut⟩ h_input_lt).symm]
         exact h_ih
-      · -- Non-cut: recurse with IH.
-        exact h_ih
+      · exact h_ih
 
 end Circuit
