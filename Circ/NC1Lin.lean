@@ -1,6 +1,7 @@
 import Circ.AON.Defs
 import Circ.NF.Defs
 import Circ.Valiant
+import Circ.Valiant.Sigma3Build
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Analysis.Asymptotics.Defs
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -90,6 +91,55 @@ structure Sigma3Rep (N : Nat) (ε : ℝ) (f : BitString N → Bool) where
 exists (by the Nat `sInf` convention). -/
 noncomputable def Sigma3 {N : Nat} (ε : ℝ) (f : BitString N → Bool) : ℕ :=
   sInf {t | ∃ rep : Sigma3Rep N ε f, rep.t = t}
+
+/-! ### Packaging cuts as a Σ₃-representation -/
+
+/-- **Sigma3Rep from a cut-edge family.** Given a fan-in-2 single-output
+circuit `c` and a cut-edge set `F` (with sources in the wire range)
+together with a per-α clause-count bound, the family `{ψ_α}_α : ↥F → Bool`
+is a `Sigma3Rep` of `(fun x => (c.eval x) 0)`. -/
+noncomputable def Sigma3RepFromCutCircuit
+    {N G : ℕ} [NeZero N]
+    (c : Circuit Basis.andOr2 N 1 G)
+    (F : Finset (Fin (N + G + 1) × Fin (N + G + 1)))
+    (hF : ∀ e ∈ F, e.1.val < N + G)
+    {ε : ℝ}
+    (h_clause : ∀ α : ↥F → Bool,
+      ((c.psiCNF F α 0 hF).complexity : ℝ) ≤ (2 : ℝ) ^ ((N : ℝ) ^ ε)) :
+    Sigma3Rep N ε (fun x => (c.eval x) 0) where
+  t := Fintype.card (↥F → Bool)
+  cnfs := fun i => c.psiCNF F ((Fintype.equivFin (↥F → Bool)).symm i) 0 hF
+  clause_bound := fun _ => h_clause _
+  correctness := fun x => by
+    have h_eq := c.sum_psiCNF_eval_eq F 0 hF x
+    have h_reindex :
+        (∑ i : Fin (Fintype.card (↥F → Bool)),
+          (if (c.psiCNF F ((Fintype.equivFin (↥F → Bool)).symm i) 0 hF).eval x
+            then 1 else 0 : ℕ)) =
+        ∑ α : ↥F → Bool,
+          (if (c.psiCNF F α 0 hF).eval x then 1 else 0 : ℕ) :=
+      Equiv.sum_comp (Fintype.equivFin (↥F → Bool)).symm
+        (fun α => (if (c.psiCNF F α 0 hF).eval x then 1 else 0 : ℕ))
+    rw [h_reindex]
+    exact h_eq
+
+/-- `Sigma3 ε f ≤ 2 ^ |F|` whenever a cut-edge set `F` yields a per-α
+clause-count bound — i.e., the Σ₃ representation built from `{ψ_α}` has
+size `2^|F|`. -/
+theorem Sigma3_le_pow_card
+    {N G : ℕ} [NeZero N]
+    (c : Circuit Basis.andOr2 N 1 G)
+    (F : Finset (Fin (N + G + 1) × Fin (N + G + 1)))
+    (hF : ∀ e ∈ F, e.1.val < N + G)
+    {ε : ℝ}
+    (h_clause : ∀ α : ↥F → Bool,
+      ((c.psiCNF F α 0 hF).complexity : ℝ) ≤ (2 : ℝ) ^ ((N : ℝ) ^ ε)) :
+    Sigma3 ε (fun x => (c.eval x) 0) ≤ 2 ^ F.card := by
+  unfold Sigma3
+  apply Nat.sInf_le
+  refine ⟨Sigma3RepFromCutCircuit c F hF h_clause, ?_⟩
+  show Fintype.card (↥F → Bool) = 2 ^ F.card
+  rw [Fintype.card_fun, Fintype.card_bool, Fintype.card_coe]
 
 /-! ### Lemma 11.1 statement -/
 

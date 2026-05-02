@@ -62,6 +62,40 @@ def eval (φ : CNF N) (x : BitString N) : Bool :=
 /-- The complexity of a CNF formula is its number of clauses. -/
 def complexity (φ : CNF N) : Nat := φ.clauses.length
 
+/-- Conjoin two CNFs by appending their clause lists. -/
+def and (φ ψ : CNF N) : CNF N := ⟨φ.clauses ++ ψ.clauses⟩
+
+theorem and_eval (φ ψ : CNF N) (x : BitString N) :
+    (φ.and ψ).eval x = (φ.eval x && ψ.eval x) := by
+  unfold and eval
+  exact List.all_append
+
+theorem and_complexity (φ ψ : CNF N) :
+    (φ.and ψ).complexity = φ.complexity + ψ.complexity := by
+  unfold and complexity
+  exact List.length_append
+
+/-- Big conjunction of a list-indexed family of CNFs. The empty list maps
+to the trivial (always-true) CNF `⟨[]⟩`. -/
+def bigAnd (φs : List (CNF N)) : CNF N :=
+  φs.foldr CNF.and ⟨[]⟩
+
+theorem bigAnd_eval (φs : List (CNF N)) (x : BitString N) :
+    (bigAnd φs).eval x = φs.all (fun φ => φ.eval x) := by
+  induction φs with
+  | nil => simp [bigAnd, eval]
+  | cons φ rest ih =>
+    show (φ.and (bigAnd rest)).eval x = _
+    rw [and_eval, ih, List.all_cons]
+
+theorem bigAnd_complexity (φs : List (CNF N)) :
+    (bigAnd φs).complexity = (φs.map complexity).sum := by
+  induction φs with
+  | nil => simp [bigAnd, complexity]
+  | cons φ rest ih =>
+    show (φ.and (bigAnd rest)).complexity = _
+    rw [and_complexity, ih, List.map_cons, List.sum_cons]
+
 end CNF
 
 /-! ## DNF -/
