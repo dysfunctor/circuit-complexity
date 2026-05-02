@@ -1,5 +1,7 @@
 import Circ.Basic
+import Circ.Depth
 import Circ.NF
+import Circ.NF.FromFunction
 import Circ.AON
 import Circ.XOR
 import Circ.EssentialInput
@@ -9,6 +11,10 @@ import Circ.Schnorr
 import Circ.AC0
 import Circ.Nondeterminism
 import Circ.Valiant
+import Circ.Valiant.CircuitDigraph
+import Circ.Valiant.Prune
+import Circ.Valiant.CutValue
+import Circ.Valiant.CutReachable
 import Circ.NC1Lin
 
 /-! # Circuit Complexity Library
