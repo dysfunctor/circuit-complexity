@@ -1,4 +1,5 @@
 import Circ.AON.Defs
+import Circ.Internal.Foldl
 
 /-! # Internal: AND/OR/NOT Completeness Proof
 
@@ -77,36 +78,6 @@ private lemma AONFor_wireValue_gate {N : Nat} [NeZero N] (f : BitString N → Bo
     (AONFor f).gates = AONFor.mkGate f := rfl
 
 /-! ## Helper lemmas for AONFor correctness -/
-
-private lemma foldl_bor_eq_true (n : Nat) (g : Fin n → Bool) :
-    (Fin.foldl n (fun acc i => acc || g i) false = true) ↔ (∃ i : Fin n, g i = true) := by
-  induction n with
-  | zero => simp [Fin.foldl_zero]
-  | succ n ih =>
-    rw [Fin.foldl_succ_last]
-    constructor
-    · intro h
-      rw [Bool.or_eq_true] at h
-      cases h with
-      | inl h => rw [ih] at h; obtain ⟨j, hj⟩ := h; exact ⟨j.castSucc, hj⟩
-      | inr h => exact ⟨Fin.last n, h⟩
-    · intro ⟨i, hi⟩
-      rw [Bool.or_eq_true]
-      rcases Fin.lastCases (motive := fun i => (∃ j : Fin n, i = j.castSucc) ∨ i = Fin.last n)
-        (Or.inr rfl) (fun j => Or.inl ⟨j, rfl⟩) i with ⟨j, rfl⟩ | rfl
-      · left; rw [ih]; exact ⟨j, hi⟩
-      · right; exact hi
-
-private lemma foldl_band_eq_true (n : Nat) (g : Fin n → Bool) :
-    (Fin.foldl n (fun acc i => acc && g i) true = true) ↔ (∀ i : Fin n, g i = true) := by
-  induction n with
-  | zero => simp [Fin.foldl_zero]
-  | succ n ih =>
-    rw [Fin.foldl_succ_last]; constructor
-    · intro h; rw [Bool.and_eq_true] at h; obtain ⟨h1, h2⟩ := h
-      rw [ih] at h1; intro i; exact Fin.lastCases h2 (fun j => h1 j) i
-    · intro h; rw [Bool.and_eq_true]
-      exact ⟨(ih _).mpr (fun j => h j.castSucc), h (Fin.last n)⟩
 
 private lemma AONFor_wireValue_input {N : Nat} [NeZero N] (f : BitString N → Bool)
     (x : BitString N) (j : Fin N) :

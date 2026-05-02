@@ -17,6 +17,7 @@ import Circ.Valiant.CutValue
 import Circ.Valiant.CutReachable
 import Circ.Valiant.Sigma3Build
 import Circ.NC1Lin
+import Circ.NC1Lin.Circuit
 
 /-! # Circuit Complexity Library
 

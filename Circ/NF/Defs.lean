@@ -40,6 +40,11 @@ theorem Literal.eval_neg (l : Literal N) (x : BitString N) :
   simp [Literal.neg, Literal.eval]
   cases l.polarity <;> simp
 
+/-- Bridge from gate-style xor-with-negation to `Literal.eval`. -/
+theorem xor_neg_polarity_eq_eval (l : Literal N) (x : BitString N) :
+    (!l.polarity).xor (x l.var) = l.eval x := by
+  simp [Literal.eval]; cases l.polarity <;> simp
+
 /-! ## CNF -/
 
 /--
